@@ -38,14 +38,19 @@
   (doseq [status (if (< (count text) 140) [text] (split-tweet text))]
       (tw-rest/statuses-update :oauth-creds account :params {:status status})))
 
+(defn gen-tweet [model]
+  (as-> model $
+    (read-string $)
+    (brain/continue-sentence $ [:start])
+    (brain/detokenize $)
+    (brain/trim-punctuation $)))
+
 (defn -main [& args]
   (if (some (partial = "--learn") args) 
     (spit "model.clj" (brain/create-model (load-texts)) :append false)
     (try
-      (as-> (slurp "model.clj") $
-        (read-string $)
-        (brain/continue-sentence $ [:start])
-        (brain/detokenize $)
-        (brain/trim-punctuation $)
-        (tweet (get-creds) $))
+      (let [tweet-text (gen-tweet (slurp "model.clj"))]
+        (if (some (partial = "--local") args)
+          (println tweet-text)
+          (tweet (get-creds) tweet-text)))
       (catch java.io.FileNotFoundException e "You have to --learn before tweeting"))))
