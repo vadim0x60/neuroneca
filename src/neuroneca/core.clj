@@ -27,15 +27,17 @@
     (System/getenv "USER_ACESS_TOKEN")
     (System/getenv "USER_ACESS_TOKEN_SECRET")))
 
+(def character-limit 280)
+
 (defn split-tweet [text]
   (as-> text $
-    (map (partial apply str) (partition-all 134 $))
+    (map (partial apply str) (partition-all (- character-limit 6) $))
     (concat [(first $)] (map #(str "..." %) (rest $)))
     (concat (map #(str % "...") (butlast $)) [(last $)])
     (reverse $)))
 
 (defn tweet [account text]
-  (doseq [status (if (< (count text) 140) [text] (split-tweet text))]
+  (doseq [status (if (< (count text) character-limit) [text] (split-tweet text))]
       (tw-rest/statuses-update :oauth-creds account :params {:status status})))
 
 (defn gen-tweet [model]
