@@ -24,8 +24,8 @@
   (tw-auth/make-oauth-creds
     (System/getenv "APP_CONSUMER_KEY")
     (System/getenv "APP_CONSUMER_SECRET")
-    (System/getenv "USER_ACESS_TOKEN")
-    (System/getenv "USER_ACESS_TOKEN_SECRET")))
+    (System/getenv "USER_ACCESS_TOKEN")
+    (System/getenv "USER_ACCESS_TOKEN_SECRET")))
 
 (def character-limit 280)
 
